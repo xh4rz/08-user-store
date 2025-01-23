@@ -23,14 +23,13 @@ export class AuthService {
 
 			await user.save();
 
-			// JWT - mantenet la autentacion del usuario
-			const token = await JwtAdapter.generateToken({
-				id: user.id
-			});
-
 			// Email de confirmacion
 
 			const { password, ...userEntity } = UserEntity.fromObject(user);
+
+			const token = await JwtAdapter.generateToken({
+				id: user.id
+			});
 
 			return {
 				user: userEntity,
