@@ -1,5 +1,10 @@
 import { CategoryModel } from '../../data';
-import { CreateCategoryDto, CustomError, UserEntity } from '../../domain';
+import {
+	CreateCategoryDto,
+	CustomError,
+	PaginationDto,
+	UserEntity
+} from '../../domain';
 
 export class CategoryService {
 	constructor() {}
@@ -29,15 +34,33 @@ export class CategoryService {
 		}
 	}
 
-	async getCategories() {
-		try {
-			const categories = await CategoryModel.find();
+	async getCategories(paginationDto: PaginationDto) {
+		const { page, limit } = paginationDto;
 
-			return categories.map((category) => ({
-				id: category.id,
-				name: category.name,
-				available: category.available
-			}));
+		try {
+			// const categories = await CategoryModel.find()
+			// 	.skip((page - 1) * limit)
+			// 	.limit(limit);
+
+			// const total = await CategoryModel.countDocuments();
+
+			const [categories, total] = await Promise.all([
+				CategoryModel.find()
+					.skip((page - 1) * limit)
+					.limit(limit),
+				CategoryModel.countDocuments()
+			]);
+
+			return {
+				page: page,
+				limit: limit,
+				total: total,
+				categories: categories.map((category) => ({
+					id: category.id,
+					name: category.name,
+					available: category.available
+				}))
+			};
 		} catch (error) {
 			throw CustomError.internalServer('Internal Server Error');
 		}
