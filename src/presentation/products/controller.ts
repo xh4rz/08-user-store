@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { CreateCategoryDto, CustomError, PaginationDto } from '../../domain';
-import { CategoryService } from '../services/category.service';
+import { CreateProductDto, CustomError, PaginationDto } from '../../domain';
+import { ProductService } from '../services';
 
 export class ProductController {
-	constructor() {} // private readonly productService: CategoryService
+	constructor(private readonly productService: ProductService) {}
 
 	private handleError = (error: unknown, res: Response) => {
 		if (error instanceof CustomError) {
@@ -15,14 +15,14 @@ export class ProductController {
 	};
 
 	createProduct = (req: Request, res: Response) => {
-		// const [error, createCategoryDto] = CreateCategoryDto.create(req.body);
-		// if (error) return res.status(400).json({ error });
-		// this.categoryService
-		// 	.createCategory(createCategoryDto!, req.body.user)
-		// 	.then((category) => res.status(201).json(category))
-		// 	.catch((error) => this.handleError(error, res));
+		const [error, createProductDto] = CreateProductDto.create(req.body);
 
-		return res.json('create product');
+		if (error) return res.status(400).json({ error });
+
+		this.productService
+			.createProduct(createProductDto!)
+			.then((product) => res.status(201).json(product))
+			.catch((error) => this.handleError(error, res));
 	};
 
 	getProducts = async (req: Request, res: Response) => {
@@ -32,11 +32,9 @@ export class ProductController {
 
 		if (error) return res.status(400).json({ error });
 
-		return res.json('get products');
-
-		// this.categoryService
-		// 	.getCategories(paginationDto!)
-		// 	.then((categories) => res.json(categories))
-		// 	.catch((error) => this.handleError(error, res));
+		this.productService
+			.getProducts(paginationDto!)
+			.then((products) => res.json(products))
+			.catch((error) => this.handleError(error, res));
 	};
 }
